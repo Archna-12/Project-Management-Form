@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Project Management Form</title>
+    <style>
+        /* Add some basic styling for the form */
+        form {
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        label,
+        input {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+
+        #output {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+<center> <h1>Project Management Form</h1></center> 
+
+    <form id="projectForm">
+        <label for="projectId">Project ID:</label>
+        <input type="text" id="projectId" required>
+         
+        <label for="projectName">Project Name:</label>
+        <input type="text" id="projectName" required>
+         <label for="assignedTo">Assigned To:</label>
+        <input type="text" id="assignedTo" required>
+
+        <label for="projectDescription">Project Description:</label>
+        <textarea id="projectDescription" required></textarea>
+
+        <label for="projectDeadline">Project Deadline:</label>
+        <input type="date" id="projectDeadline" required>
+
+        <input type="button" class="btn btn-primary" id="empSave" value="Save"
+onclick="saveEmployee();">
+    </form>
+
+    <div id="output"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+       $("#projectId").focus();
+function validateAndGetFormData() {
+var projectId = $("#projectId").val();
+if (projectId=== "") {
+alert("projectId Required Value");
+$("#projectId").focus();
+return "";
+}
+var projectName = $("#projectName").val();
+if (projectName === "") {
+alert("projectName Required Value");
+$("#projectName").focus();
+return "";
+}
+
+var projectDescription = $("#projectDescription").val();
+if (projectDescription === "") {
+alert("projectDescription Required Value");
+$("#projectDescription").focus();
+return "";
+}
+var assignedTo = $("#assignedTo").val();
+if (assignedTo === "") {
+alert("assignedTo Required Value");
+$("#assignedTo").focus();
+return "";
+}
+var projectDeadline = $("#projectDeadline").val();
+if (projectDeadline === "") {
+alert("projectDeadline is Required Value");
+$("#projectDeadline").focus();
+return "";
+}
+var jsonStrObj = {
+projectId :projectId ,
+projectName: projectName,
+projectDescription: projectDescription,
+assignedTo: assignedTo,
+projectDeadline: projectDeadline
+};
+return JSON.stringify(jsonStrObj);
+}
+// This method is used to create PUT Json request.
+function createPUTRequest(connToken, jsonObj, dbName, relName) {
+var putRequest = "{\n"
++ "\"token\" : \""
++ connToken
++ "\","
++ "\"dbName\": \""
++ dbName
++ "\",\n" + "\"cmd\" : \"PUT\",\n"
++ "\"rel\" : \""
++ relName + "\","
++ "\"jsonStr\": \n"
++ jsonObj
++ "\n"
++ "}";
+return putRequest;
+}
+function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+var url = dbBaseUrl + apiEndPointUrl;
+var jsonObj;
+$.post(url, reqString, function (result) {
+jsonObj = JSON.parse(result);
+}).fail(function (result) {
+var dataJsonObj = result.responseText;
+jsonObj = JSON.parse(dataJsonObj);
+});
+return jsonObj;
+}
+function resetForm() {
+$("#projectId").val("");
+$("#projectName").val("");
+$("#projectDescription").val("");
+$("assignedTo").val("");
+$("#projectDeadline").val("");
+$("#projectId").focus();
+}
+function saveEmployee() {
+var jsonStr = validateAndGetFormData();
+if (jsonStr === "") {
+return;
+}
+var putReqStr = createPUTRequest("90932850|-31949281439893530|90948252",
+jsonStr, "PROJECT-TABLE", "COLLEGE-DB");
+alert(putReqStr);
+jQuery.ajaxSetup({async: false});
+var resultObj = executeCommand(putReqStr,
+"http://api.login2explore.com:5577", "/api/iml");
+alert(JSON.stringify(resultObj));;
+jQuery.ajaxSetup({async: true});
+resetForm();
+}
+    </script>
+</body>
+
+</html>
